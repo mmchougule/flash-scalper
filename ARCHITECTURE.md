@@ -2,7 +2,7 @@
 
 ## Overview
 
-FlashScalper is a high-performance crypto scalping bot with LLM-assisted decision making. It uses structured LLM prompts for trade confirmation, not an agent framework.
+FlashScalper is a crypto scalping bot with agent-based decision making. Uses structured prompts for trade confirmation.
 
 ## System Architecture
 
@@ -13,26 +13,26 @@ graph TB
         MarketData[Fetch Market Data]
         Indicators[Calculate Indicators]
         SignalGen[Generate Signals]
-        LLMConfirm[LLM Confirmation<br/>Optional]
+        AgentConfirm[Agent Confirmation<br/>Optional]
         OrderExec[Execute Orders]
         PositionMgr[Monitor Positions]
         
         MainLoop --> MarketData
         MarketData --> Indicators
         Indicators --> SignalGen
-        SignalGen --> LLMConfirm
-        LLMConfirm --> OrderExec
+        SignalGen --> AgentConfirm
+        AgentConfirm --> OrderExec
         OrderExec --> PositionMgr
         PositionMgr --> MainLoop
     end
     
-    subgraph "LLM Integration"
+    subgraph "Agent Integration"
         EntryPrompt[Entry Analysis Prompt]
         ExitPrompt[Exit Analysis Prompt]
-        LLMAPI[OpenRouter API]
+        AgentAPI[OpenRouter API]
         
-        EntryPrompt --> LLMAPI
-        ExitPrompt --> LLMAPI
+        EntryPrompt --> AgentAPI
+        ExitPrompt --> AgentAPI
     end
 ```
 
@@ -43,7 +43,7 @@ sequenceDiagram
     participant Market as Market Data
     participant TA as Technical Analysis
     participant Scorer as Signal Scorer
-    participant LLM as LLM (Optional)
+    participant Agent as Agent (Optional)
     participant Executor as Order Executor
     participant Position as Position Manager
     
@@ -51,8 +51,8 @@ sequenceDiagram
     TA->>TA: Calculate Indicators
     TA->>Scorer: Indicators
     Scorer->>Scorer: Score Signal
-    Scorer->>LLM: Optional Confirmation
-    LLM-->>Scorer: LONG/SHORT/WAIT
+    Scorer->>Agent: Optional Confirmation
+    Agent-->>Scorer: LONG/SHORT/WAIT
     Scorer->>Executor: Qualified Signal
     Executor->>Market: Place Order
     Executor->>Position: Open Position
@@ -78,7 +78,7 @@ Single-process trading bot that runs the complete trading loop in one process.
 │    ├─ Fetch Market Data                 │
 │    ├─ Calculate Indicators              │
 │    ├─ Generate Signals                  │
-│    ├─ LLM Confirmation (optional)       │
+│    ├─ Agent Confirmation (optional)     │
 │    ├─ Execute Orders                    │
 │    └─ Monitor Positions                 │
 │                                         │
@@ -165,7 +165,7 @@ Technical Indicators (RSI, MACD, EMA, etc.)
     ↓
 Signal Scoring (Multi-indicator confluence)
     ↓
-LLM Confirmation (Optional - Structured Outputs with Zod)
+Agent Confirmation (Optional - Structured Outputs with Zod)
     ├─ Rate Limiter (Token Bucket)
     ├─ Circuit Breaker (CLOSED/OPEN/HALF_OPEN)
     ├─ Retry Logic (Exponential Backoff)
@@ -176,34 +176,34 @@ Signal Validation (Filters, Risk Checks)
 Order Execution
 ```
 
-## LLM Integration
+## Agent Integration
 
 ### Architecture
 
-The LLM integration uses structured prompts, not an agent framework:
+The agent uses structured prompts for decision making:
 
 - Receives structured data (indicators, price, position info)
 - Returns structured JSON decisions (LONG/SHORT/WAIT, HOLD/EXIT)
-- Cannot call tools (can't fetch data or execute trades)
-- Has no memory (each call is independent)
-- No reasoning chains (single-shot prompts)
+- No tool calling (decisions based on provided context only)
+- Stateless (each call is independent)
+- Single-shot prompts (no multi-step reasoning)
 
-### Production Features
+### Reliability Features
 
-- Structured Outputs: Zod schemas for type-safe LLM responses
+- Structured Outputs: Zod schemas for type-safe agent responses
 - Retry Logic: Exponential backoff for transient failures
 - Circuit Breaker: Prevents cascading failures
 - Rate Limiting: Token bucket algorithm
 - Error Handling: Categorized errors (timeout, rate limit, validation, service)
-- Graceful Degradation: Falls back to technical analysis on LLM errors
-- Metrics: Comprehensive observability
+- Graceful Degradation: Falls back to technical analysis on agent errors
+- Metrics: Basic observability
 
-### Why Not Agentic?
+### Design Rationale
 
-This design prioritizes speed (100-500ms) and reliability over sophistication:
+This design prioritizes speed and reliability:
 
-- Speed: Critical for scalping (need fast decisions)
-- Reliability: Fewer failure points (no tool calling errors)
+- Speed: Fast decision-making for scalping
+- Reliability: Fewer failure points (no tool calling)
 - Cost: Simpler prompts are cheaper and faster
 - Latency: Single-shot prompts are faster than multi-step reasoning
 
@@ -214,7 +214,7 @@ This design prioritizes speed (100-500ms) and reliability over sophistication:
 - Language: TypeScript
 - Runtime: Node.js 18+
 - Exchange Client: Custom Aster DEX client
-- LLM: OpenRouter API (DeepSeek model)
+- Agent: OpenRouter API (DeepSeek model)
 - Logging: Pino (structured JSON logging)
 - Metrics: Prometheus
 
@@ -233,7 +233,7 @@ This design prioritizes speed (100-500ms) and reliability over sophistication:
 
 - `technical-analysis.ts`: Calculates all technical indicators
 - `signal-scorer.ts`: Scores signals based on indicator confluence
-- `llm-analyzer.ts`: LLM confirmation (structured prompts)
+- `llm-analyzer.ts`: Agent confirmation (structured prompts)
 - `index.ts`: Main signal generation orchestration
 
 #### Execution Service (`src/services/execution/`)

@@ -2,26 +2,26 @@
 
 > ⚠️ **DISCLAIMER**: This software is for educational and research purposes only. **NOT FOR PRODUCTION USE**. Trading involves substantial risk of loss. See [DISCLAIMER.md](DISCLAIMER.md) for full details.
 
-High-performance AI-powered cryptocurrency scalping trading bot with LLM-assisted decision making and adaptive memory learning.
+Crypto scalping trading agent.
 
 ## Features
 
 - **Multi-Indicator Technical Analysis** - RSI, MACD, Bollinger Bands, Stochastic, ROC, Williams %R, ATR, Momentum, Volume analysis
-- **LLM-Assisted Signal Confirmation** - Optional structured LLM analysis for entry/exit decisions using OpenRouter API
-- **Adaptive Memory System** - Learns from trade history to improve signal quality and adapt to market conditions
+- **Agent Signal Confirmation** - Optional agent-based analysis for entry/exit decisions using OpenRouter API
+- **Adaptive Memory System** - Stores trade history and patterns to inform future signal filtering
 - **Pattern Recognition** - Identifies winning vs losing setups from historical data
 - **Risk Management** - Stop-loss, take-profit, trailing stops, daily loss limits, position sizing
 - **Real-Time Position Monitoring** - Continuous P&L tracking and exit condition evaluation
 - **Support/Resistance Analysis** - Optimized entry prices using limit orders
 - **Market Regime Detection** - Adapts strategy based on trending, ranging, or volatile market conditions
-- **Prometheus Metrics** - Comprehensive observability and monitoring
+- **Prometheus Metrics** - Metrics export for monitoring and observability
 
 ## Prerequisites
 
 - **Node.js** >= 18.0.0
 - **Redis** (optional, for worker mode)
 - **Exchange API Keys** (Aster or compatible exchange)
-- **OpenRouter API Key** (optional, for LLM features)
+- **OpenRouter API Key** (optional, for agent features)
 
 ## Quick Start
 
@@ -76,9 +76,9 @@ npm run start:scalper
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `ASTER_BASE_URL` | Exchange API base URL | `https://fapi.asterdex.com` |
-| `OPENROUTER_API_KEY` | LLM API key (for signal confirmation) | - |
-| `OPENROUTER_MODEL` | LLM model to use | `deepseek/deepseek-chat-v3-0324` |
-| `LLM_ENABLED` | Enable LLM analysis | `true` |
+| `OPENROUTER_API_KEY` | Agent API key (for signal confirmation) | - |
+| `OPENROUTER_MODEL` | Agent model to use | `deepseek/deepseek-chat-v3-0324` |
+| `LLM_ENABLED` | Enable agent analysis | `true` |
 | `SCALPER_LEVERAGE` | Trading leverage | `10` |
 | `SCALPER_POSITION_SIZE_PERCENT` | Position size as % of equity | `25` |
 | `SCALPER_MAX_POSITIONS` | Maximum concurrent positions | `20` |
@@ -109,7 +109,7 @@ This mode:
 - Logs all activity to console and files
 - Supports graceful shutdown (Ctrl+C)
 
-### Worker Mode (For Production Scaling)
+### Worker Mode (For Horizontal Scaling)
 
 Run separate workers for signal generation, execution, and position management:
 
@@ -146,7 +146,7 @@ FlashScalper supports three deployment modes:
 ### System Flow
 
 ```
-Market Data → Technical Analysis → Signal Generation → LLM Confirmation (optional)
+Market Data → Technical Analysis → Signal Generation → Agent Confirmation (optional)
     ↓
 Signal Scoring → Risk Checks → Order Execution → Position Monitoring
     ↓
@@ -196,7 +196,7 @@ npm test -- tests/unit/signal-scorer.test.ts
 
 Test coverage includes:
 - Unit tests for all core services
-- Integration tests for LLM and memory systems
+- Integration tests for agent and memory systems
 - Technical analysis validation
 - Risk management logic
 
@@ -210,7 +210,7 @@ Metrics are available at `http://localhost:9090/metrics` (when metrics server is
 - `flashscalper_trade_pnl_usd` - Trade PnL histogram
 - `flashscalper_signals_total` - Signals generated
 - `flashscalper_agent_equity_usd` - Agent equity
-- `flashscalper_llm_latency_ms` - LLM API latency
+- `flashscalper_llm_latency_ms` - Agent API latency
 - And many more...
 
 ### Logging
@@ -222,13 +222,13 @@ Structured JSON logging with Pino:
 
 ## Memory System
 
-FlashScalper includes an adaptive memory system that learns from trade history:
+FlashScalper includes an adaptive memory system that stores trade history:
 
 - **Trade History Memory** - Stores completed trades with full context
-- **Pattern Learning** - Identifies winning vs losing signal patterns
-- **Market Regime Memory** - Tracks and adapts to different market conditions
-- **Symbol Intelligence** - Learns which symbols perform better
-- **Adaptive Filters** - Dynamically adjusts signal filters based on performance
+- **Pattern Recognition** - Tracks winning vs losing signal patterns
+- **Market Regime Memory** - Tracks performance across different market conditions
+- **Symbol Performance Tracking** - Records which symbols perform better
+- **Adaptive Filters** - Adjusts signal filters based on historical performance patterns
 
 Memory is persisted to disk and automatically loaded on startup.
 
@@ -274,7 +274,7 @@ Built with:
 - Pino for structured logging
 - Prometheus for metrics
 - BullMQ for job queues
-- OpenRouter for LLM access
+- OpenRouter for agent access
 
 ---
 

@@ -2,23 +2,23 @@
 
 This document records the key architectural decisions made in FlashScalper.
 
-## ADR-001: Simple LLM Prompts vs Agent Framework
+## ADR-001: Simple Agent Prompts vs Tool-Calling Agents
 
 **Status**: Accepted
 
-**Context**: Need LLM assistance for trade confirmation, but must be fast and reliable for scalping.
+**Context**: Need agent assistance for trade confirmation, but must be fast and reliable for scalping.
 
-**Decision**: Use simple structured prompts instead of an agent framework (LangChain, LangGraph, AutoGPT).
+**Decision**: Use simple structured prompts instead of tool-calling agents (LangChain, LangGraph, AutoGPT).
 
 **Consequences**:
-- Fast: 100-500ms per analysis (vs 2-5s for agentic)
+- Fast: Typically faster than tool-calling agents
 - Reliable: Fewer failure points (no tool calling errors)
 - Cost-effective: Simpler prompts are cheaper
 - Trade-off: Less sophisticated reasoning, but sufficient for scalping
 
 **Alternatives Considered**:
-- Multi-agent system (like QuantAgent): Too slow for scalping
-- Tool calling: Adds latency and failure points
+- Multi-agent systems: Too slow for scalping
+- Tool calling agents: Adds latency and failure points
 - Reasoning chains: Unnecessary for simple confirmation
 
 ## ADR-002: Standalone Mode as Primary
@@ -42,9 +42,9 @@ This document records the key architectural decisions made in FlashScalper.
 
 **Status**: Accepted
 
-**Context**: Need reliable parsing of LLM responses without regex errors.
+**Context**: Need reliable parsing of agent responses without regex errors.
 
-**Decision**: Use Zod schemas for structured LLM output validation.
+**Decision**: Use Zod schemas for structured agent output validation.
 
 **Consequences**:
 - Type-safe: Compile-time validation
@@ -55,18 +55,18 @@ This document records the key architectural decisions made in FlashScalper.
 - Regex parsing: Error-prone, hard to maintain
 - Manual JSON parsing: No validation
 
-## ADR-004: Production-Ready LLM Integration
+## ADR-004: Resilient Agent Integration
 
 **Status**: Accepted
 
-**Context**: LLM API can fail, rate limit, or timeout. System must continue trading.
+**Context**: Agent API can fail, rate limit, or timeout. System must continue trading.
 
-**Decision**: Implement retry logic, circuit breaker, and rate limiting for LLM calls.
+**Decision**: Implement retry logic, circuit breaker, and rate limiting for agent calls.
 
 **Consequences**:
-- Resilient: System continues trading on LLM failures
-- Observable: Comprehensive metrics
-- Trade-off: Additional complexity, but necessary for production
+- Resilient: System continues trading on agent failures
+- Observable: Basic metrics for monitoring
+- Trade-off: Additional complexity, but improves system reliability
 
 **Components**:
 - Retry with exponential backoff

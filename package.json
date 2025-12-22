@@ -1,7 +1,7 @@
 {
   "name": "flashscalper",
   "version": "1.0.0",
-  "description": "High-performance crypto scalping bot with LLM-assisted decision making",
+  "description": "Crypto scalping bot with agent-based decision making",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
