@@ -15,6 +15,7 @@ Crypto scalping trading agent.
 - **Support/Resistance Analysis** - Optimized entry prices using limit orders
 - **Market Regime Detection** - Adapts strategy based on trending, ranging, or volatile market conditions
 - **Prometheus Metrics** - Metrics export for monitoring and observability
+- **🆕 Paradex Integration** - Live stream trading on Paradex perpetual futures with WebSocket support
 
 ## Prerequisites
 
@@ -24,6 +25,8 @@ Crypto scalping trading agent.
 - **OpenRouter API Key** (optional, for agent features)
 
 ## Quick Start
+
+### Aster Exchange (Default)
 
 ```bash
 # 1. Install dependencies
@@ -37,6 +40,23 @@ cp .env.example .env
 npm run build
 npm run start:scalper
 ```
+
+### Paradex Live Stream Trading 🆕
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Configure Paradex environment
+cp .env.paradex.example .env
+# Edit .env with your Paradex credentials
+
+# 3. Build and run
+npm run build
+npm run start:paradex
+```
+
+See [PARADEX_QUICKSTART.md](PARADEX_QUICKSTART.md) for detailed Paradex setup instructions.
 
 ## Installation
 
@@ -99,8 +119,14 @@ See `src/config/index.ts` for all available configuration options.
 
 Run the scalper in a single process:
 
+**Aster Exchange:**
 ```bash
 npm run start:scalper
+```
+
+**Paradex Exchange (Live Stream):**
+```bash
+npm run start:paradex
 ```
 
 This mode:
@@ -108,6 +134,7 @@ This mode:
 - Fetches market data, generates signals, executes orders, and monitors positions
 - Logs all activity to console and files
 - Supports graceful shutdown (Ctrl+C)
+- **Paradex**: Includes live WebSocket streaming and real-time console display
 
 ### Worker Mode (For Horizontal Scaling)
 

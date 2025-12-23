@@ -13,6 +13,8 @@
     "start:position-worker": "tsx src/workers/position-worker.ts",
     "start:all-workers": "concurrently \"npm:start:signal-worker\" \"npm:start:execution-worker\" \"npm:start:position-worker\"",
     "start:scalper": "node dist/strategies/scalper-strategy.js",
+    "start:paradex": "tsx src/strategies/paradex-live-stream.ts",
+    "start:paradex-prod": "node dist/strategies/paradex-live-stream.js",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
     "docker:build": "docker-compose build",
@@ -21,6 +23,7 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^7.18.0",
+    "@types/ws": "^8.18.1",
     "bullmq": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -33,6 +36,7 @@
     "prom-client": "^15.1.0",
     "socket.io": "^4.7.2",
     "uuid": "^9.0.1",
+    "ws": "^8.18.3",
     "zod": "^3.22.4"
   },
   "devDependencies": {
