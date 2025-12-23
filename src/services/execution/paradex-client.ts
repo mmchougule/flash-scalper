@@ -8,61 +8,15 @@ import { ethers } from 'ethers';
 import { config } from '../../config';
 import { executionLogger } from '../../utils/logger';
 import { exchangeRequests, exchangeLatency, exchangeErrors } from '../../utils/metrics';
-import type { OrderRequest, OrderResult, ExchangeCredentials } from '../../types';
-
-// =============================================================================
-// TYPES
-// =============================================================================
-
-export interface ParadexConfig {
-  enabled: boolean;
-  environment: 'testnet' | 'prod';
-  privateKey: string;
-  apiBaseUrl: string;
-  wsBaseUrl?: string;
-}
-
-export interface ParadexMarket {
-  symbol: string;
-  base_currency: string;
-  quote_currency: string;
-  settlement_currency: string;
-  order_size_increment: string;
-  price_tick_size: string;
-  min_notional: string;
-  max_order_size: string;
-  position_limit: string;
-  asset_kind: 'PERP' | 'PERP_OPTION';
-  market_kind: 'cross' | 'isolated';
-}
-
-export interface ParadexOrder {
-  id: string;
-  market: string;
-  type: 'MARKET' | 'LIMIT' | 'STOP_MARKET' | 'STOP_LIMIT';
-  side: 'BUY' | 'SELL';
-  size: string;
-  price?: string;
-  trigger_price?: string;
-  time_in_force?: 'GTC' | 'IOC' | 'FOK';
-  status: 'PENDING' | 'OPEN' | 'FILLED' | 'CANCELLED';
-  filled_size: string;
-  average_fill_price?: string;
-  created_at: number;
-}
-
-export interface ParadexPosition {
-  market: string;
-  side: 'LONG' | 'SHORT';
-  size: string;
-  entry_price: string;
-  mark_price: string;
-  liquidation_price: string;
-  unrealized_pnl: string;
-  realized_pnl: string;
-  leverage: string;
-  margin: string;
-}
+import type {
+  OrderRequest,
+  OrderResult,
+  ExchangeCredentials,
+  ParadexConfig,
+  ParadexMarket,
+  ParadexOrder,
+  ParadexPosition,
+} from '../../types';
 
 // Paradex API response formats
 interface ParadexApiResponse<T> {
