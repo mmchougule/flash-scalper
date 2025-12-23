@@ -8,6 +8,7 @@ import { config } from '../../config';
 import { executionLogger } from '../../utils/logger';
 import { exchangeRequests, exchangeLatency, exchangeErrors } from '../../utils/metrics';
 import type { OrderRequest, OrderResult, ExchangeCredentials } from '../../types';
+import { BaseExchangeClient, type ExchangePosition } from './base-exchange-client';
 
 // =============================================================================
 // TYPES
@@ -19,12 +20,7 @@ interface AsterConfig {
   baseUrl: string;
 }
 
-interface AsterPosition {
-  symbol: string;
-  positionAmt: string;
-  entryPrice: string;
-  unrealizedProfit: string;
-  leverage: string;
+interface AsterPosition extends ExchangePosition {
   marginType: string;
   isolatedMargin: string;
 }
@@ -55,12 +51,13 @@ interface AsterAccount {
 // ASTER CLIENT
 // =============================================================================
 
-export class AsterClient {
+export class AsterClient extends BaseExchangeClient {
   private config: AsterConfig;
   private exchangeInfoCache: Map<string, { min: number; precision: number }> = new Map();
   private exchangeInfoLoaded: boolean = false;
 
   constructor(credentials?: Partial<AsterConfig>) {
+    super();
     this.config = {
       apiKey: credentials?.apiKey || config.aster.apiKey,
       secretKey: credentials?.secretKey || config.aster.secretKey,

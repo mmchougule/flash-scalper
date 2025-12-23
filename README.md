@@ -2,10 +2,12 @@
 
 > ⚠️ **DISCLAIMER**: This software is for educational and research purposes only. **NOT FOR PRODUCTION USE**. Trading involves substantial risk of loss. See [DISCLAIMER.md](DISCLAIMER.md) for full details.
 
-Crypto scalping trading agent.
+Crypto scalping trading agent with multi-exchange support.
 
 ## Features
 
+- **Multi-Exchange Support** - Trade on Aster DEX or Paradex perpetual futures
+- **Real-Time WebSocket Data** - Low-latency market data streaming (Paradex)
 - **Multi-Indicator Technical Analysis** - RSI, MACD, Bollinger Bands, Stochastic, ROC, Williams %R, ATR, Momentum, Volume analysis
 - **Agent Signal Confirmation** - Optional agent-based analysis for entry/exit decisions using OpenRouter API
 - **Adaptive Memory System** - Stores trade history and patterns to inform future signal filtering
@@ -20,7 +22,9 @@ Crypto scalping trading agent.
 
 - **Node.js** >= 18.0.0
 - **Redis** (optional, for worker mode)
-- **Exchange API Keys** (Aster or compatible exchange)
+- **Exchange API Keys**:
+  - **Aster**: API key + secret for Aster DEX
+  - **Paradex**: API key + secret + bearer token for Paradex perpetuals
 - **OpenRouter API Key** (optional, for agent features)
 
 ## Quick Start
@@ -66,10 +70,24 @@ npm run start:scalper
 
 ### Required Environment Variables
 
+**For Aster Exchange:**
+
 | Variable | Description | Example |
 |----------|-------------|---------|
+| `EXCHANGE` | Exchange to use | `aster` |
 | `ASTER_API_KEY` | Exchange API key | `your_api_key` |
 | `ASTER_SECRET_KEY` | Exchange secret key | `your_secret_key` |
+
+**For Paradex Exchange:**
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `EXCHANGE` | Exchange to use | `paradex` |
+| `PARADEX_API_KEY` | Paradex API key | `your_api_key` |
+| `PARADEX_SECRET_KEY` | Paradex secret key | `your_secret_key` |
+| `PARADEX_BEARER_TOKEN` | Paradex WebSocket bearer token | `your_bearer_token` |
+
+See [PARADEX_SETUP.md](PARADEX_SETUP.md) for detailed Paradex setup instructions.
 
 ### Optional Environment Variables
 
@@ -261,9 +279,39 @@ Key points:
 
 **Important**: This software is for educational and research purposes only. Trading involves substantial risk of loss. Always test with paper trading first and never risk more than you can afford to lose.
 
+## Exchange Support
+
+FlashScalper supports multiple exchanges:
+
+### Aster DEX (Default)
+- Spot and futures trading
+- REST API for market data and orders
+- See main configuration above
+
+### Paradex Perpetuals
+- Real-time WebSocket market data
+- Perpetual futures with leverage
+- Lower latency than REST polling
+- See [PARADEX_SETUP.md](PARADEX_SETUP.md) for setup guide
+
+To switch exchanges, set `EXCHANGE=paradex` in your `.env` file.
+
+## Testing Paradex Integration
+
+Test your Paradex connection:
+
+```bash
+# Build first
+npm run build
+
+# Run Paradex test suite
+npx tsx test-paradex.ts
+```
+
 ## Support
 
 - **Documentation**: See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed technical documentation
+- **Paradex Setup**: See [PARADEX_SETUP.md](PARADEX_SETUP.md) for Paradex integration guide
 - **Issues**: Report bugs or request features via GitHub Issues
 - **Contributions**: See [CONTRIBUTING.md](CONTRIBUTING.md) for how to contribute
 
