@@ -32,6 +32,15 @@ const envSchema = z.object({
   ASTER_SECRET_KEY: z.string().optional(),
   ASTER_BASE_URL: z.string().default('https://fapi.asterdex.com'),
 
+  // Paradex Exchange
+  PARADEX_API_KEY: z.string().optional(),
+  PARADEX_PRIVATE_KEY: z.string().optional(),
+  PARADEX_ACCOUNT_ADDRESS: z.string().optional(),
+  PARADEX_JWT: z.string().optional(),
+  PARADEX_REST_URL: z.string().default('https://api.testnet.paradex.trade/v1'),
+  PARADEX_WS_URL: z.string().default('wss://ws.api.testnet.paradex.trade/v1'),
+  PARADEX_MARKETS: z.string().default('BTC-USD-PERP,ETH-USD-PERP'),
+
   // LLM
   OPENROUTER_API_KEY: z.string().optional(),
   OPENROUTER_MODEL: z.string().default('deepseek/deepseek-chat-v3-0324'),
@@ -102,6 +111,17 @@ export const config = {
     apiKey: env.ASTER_API_KEY || '',
     secretKey: env.ASTER_SECRET_KEY || '',
     baseUrl: env.ASTER_BASE_URL,
+  },
+
+  // Paradex Exchange
+  paradex: {
+    apiKey: env.PARADEX_API_KEY || '',
+    privateKey: env.PARADEX_PRIVATE_KEY || '',
+    accountAddress: env.PARADEX_ACCOUNT_ADDRESS || '',
+    jwt: env.PARADEX_JWT || '',
+    restUrl: env.PARADEX_REST_URL,
+    wsUrl: env.PARADEX_WS_URL,
+    markets: env.PARADEX_MARKETS.split(',').map(m => m.trim()).filter(m => m.length > 0),
   },
 
   // LLM
