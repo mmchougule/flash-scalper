@@ -132,6 +132,7 @@ export interface CoinConfig {
   symbol: string;
   ivishx: string; // Coin identifier (e.g., 'bitcoin', 'ethereum') - metadata only, IVISHX API not implemented
   boost: number; // Confidence boost multiplier for this coin
+  paradexMarket?: string; // Paradex market name (e.g., 'ETH-USD-PERP')
 }
 
 // =============================================================================
@@ -474,9 +475,10 @@ export interface User {
 export interface ExchangeCredentials {
   id: string;
   userId: string;
-  exchange: 'aster' | 'binance' | 'bybit';
+  exchange: 'aster' | 'binance' | 'bybit' | 'paradex';
   apiKey: string;
   secretKey: string;
+  bearerToken?: string; // For Paradex WebSocket authentication
   isActive: boolean;
 }
 

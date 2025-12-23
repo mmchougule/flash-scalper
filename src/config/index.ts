@@ -27,10 +27,20 @@ const envSchema = z.object({
   JWT_SECRET: z.string().default('change-this-in-production'),
   JWT_EXPIRES_IN: z.string().default('24h'),
 
-  // Exchange
+  // Exchange Selection
+  EXCHANGE: z.enum(['aster', 'paradex']).default('aster'),
+
+  // Exchange - Aster
   ASTER_API_KEY: z.string().optional(),
   ASTER_SECRET_KEY: z.string().optional(),
   ASTER_BASE_URL: z.string().default('https://fapi.asterdex.com'),
+
+  // Exchange - Paradex
+  PARADEX_API_KEY: z.string().optional(),
+  PARADEX_SECRET_KEY: z.string().optional(),
+  PARADEX_BEARER_TOKEN: z.string().optional(),
+  PARADEX_REST_URL: z.string().default('https://api.testnet.paradex.trade'),
+  PARADEX_WS_URL: z.string().default('wss://ws.api.testnet.paradex.trade/v1'),
 
   // LLM
   OPENROUTER_API_KEY: z.string().optional(),
@@ -97,11 +107,23 @@ export const config = {
   jwtSecret: env.JWT_SECRET,
   jwtExpiresIn: env.JWT_EXPIRES_IN,
 
-  // Exchange
+  // Exchange Selection
+  exchange: env.EXCHANGE as 'aster' | 'paradex',
+
+  // Exchange - Aster
   aster: {
     apiKey: env.ASTER_API_KEY || '',
     secretKey: env.ASTER_SECRET_KEY || '',
     baseUrl: env.ASTER_BASE_URL,
+  },
+
+  // Exchange - Paradex
+  paradex: {
+    apiKey: env.PARADEX_API_KEY || '',
+    secretKey: env.PARADEX_SECRET_KEY || '',
+    bearerToken: env.PARADEX_BEARER_TOKEN || '',
+    restUrl: env.PARADEX_REST_URL,
+    wsUrl: env.PARADEX_WS_URL,
   },
 
   // LLM
@@ -389,6 +411,17 @@ export const DEFAULT_BLUECHIP_COINS: CoinConfig[] = [
   { symbol: 'LINKUSDT', ivishx: 'chainlink', boost: 1.0 },  // Good volume
 ];
 
+// Paradex perpetual futures markets
+export const DEFAULT_PARADEX_MARKETS: CoinConfig[] = [
+  { symbol: 'BTCUSDT', ivishx: 'bitcoin', boost: 1.0, paradexMarket: 'BTC-USD-PERP' },
+  { symbol: 'ETHUSDT', ivishx: 'ethereum', boost: 1.0, paradexMarket: 'ETH-USD-PERP' },
+  { symbol: 'SOLUSDT', ivishx: 'solana', boost: 1.1, paradexMarket: 'SOL-USD-PERP' },
+  { symbol: 'XRPUSDT', ivishx: 'xrp', boost: 1.1, paradexMarket: 'XRP-USD-PERP' },
+  { symbol: 'ADAUSDT', ivishx: 'cardano', boost: 1.1, paradexMarket: 'ADA-USD-PERP' },
+  { symbol: 'AVAXUSDT', ivishx: 'avalanche', boost: 1.1, paradexMarket: 'AVAX-USD-PERP' },
+  { symbol: 'LINKUSDT', ivishx: 'chainlink', boost: 1.0, paradexMarket: 'LINK-USD-PERP' },
+];
+
 // Stock futures removed - not supported on Aster DEX
 // export const DEFAULT_STOCK_FUTURES: CoinConfig[] = [];
 
@@ -408,6 +441,13 @@ export function loadCoinList(): CoinConfig[] {
       // Fall through to defaults
     }
   }
+  
+  // Use Paradex markets if Paradex exchange is selected
+  const selectedExchange = process.env.EXCHANGE || 'aster';
+  if (selectedExchange === 'paradex') {
+    return DEFAULT_PARADEX_MARKETS;
+  }
+  
   return [...DEFAULT_TRENDING_COINS, ...DEFAULT_BLUECHIP_COINS];
 }
 
