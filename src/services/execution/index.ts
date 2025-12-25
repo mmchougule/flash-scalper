@@ -9,7 +9,7 @@ export * from './exchange-abstraction';
 export * from './multi-exchange-executor';
 
 import { AsterClient, createAsterClient } from './exchange-client';
-import { ParadexClient, createParadexClient } from './paradex-client';
+import { createParadexClient } from './paradex-client';
 import {
   executeOrder,
   closePosition,
