@@ -46,6 +46,7 @@ export interface ScalperConfig {
   takeProfitROE: number;
   takeProfitROEHigh?: number; // For high-confidence signals
   stopLossROE: number;
+  stopLossEarlyTriggerPercent?: number; // Percentage of stopLossROE to trigger early exit (default 0.9 = 90%)
   minProfitUSD: number;
   trailingActivationROE: number;
   trailingDistanceROE: number;

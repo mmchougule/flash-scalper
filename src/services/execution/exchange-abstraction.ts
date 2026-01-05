@@ -1,11 +1,12 @@
 /**
  * Exchange Abstraction Layer
- * 
+ *
  * Provides a unified interface for trading across multiple exchanges
  * (Aster, Paradex, etc.)
  */
 
 import type { OrderResult } from '../../types';
+import { logger } from '../../utils/logger';
 
 // =============================================================================
 // TYPES
@@ -168,7 +169,7 @@ export class ExchangeManager {
         const exchangePositions = await client.getPositions();
         positions.set(type, exchangePositions);
       } catch (error: any) {
-        console.error(`Failed to fetch positions from ${type}:`, error.message);
+        logger.error({ exchange: type, error: error.message }, `Failed to fetch positions from ${type}`);
         positions.set(type, []);
       }
     }
@@ -189,7 +190,7 @@ export class ExchangeManager {
         totalBalance += balance.balance;
         totalPnL += balance.unrealizedPnL;
       } catch (error: any) {
-        console.error(`Failed to fetch balance from ${type}:`, error.message);
+        logger.error({ exchange: type, error: error.message }, `Failed to fetch balance from ${type}`);
       }
     }
 

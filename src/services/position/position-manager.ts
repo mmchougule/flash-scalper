@@ -92,13 +92,14 @@ export function updatePosition(
   }
 
   // 3. Stop Loss - ULTRA-AGGRESSIVE early trigger for quick scalping
-  // Trigger at 90% of stop loss to exit VERY quickly
-  const stopLossTrigger = config.stopLossROE * 0.9; // Trigger at 90% of SL (was 80%) - exit faster
+  // Trigger at configurable percentage of stop loss to exit VERY quickly (default 90%)
+  const earlyTriggerPercent = config.stopLossEarlyTriggerPercent ?? 0.9;
+  const stopLossTrigger = config.stopLossROE * earlyTriggerPercent;
   if (roe <= stopLossTrigger) {
     return {
       position,
       action: 'close_sl',
-      reason: `Quick stop loss: ${roe.toFixed(2)}% ROE (target: ${config.stopLossROE.toFixed(2)}%, $${unrealizedPnl.toFixed(2)}) - ultra-fast exit`,
+      reason: `Quick stop loss: ${roe.toFixed(2)}% ROE (target: ${config.stopLossROE.toFixed(2)}%, trigger: ${(earlyTriggerPercent * 100).toFixed(0)}%, $${unrealizedPnl.toFixed(2)}) - ultra-fast exit`,
     };
   }
   

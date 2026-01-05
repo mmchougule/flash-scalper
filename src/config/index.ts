@@ -224,6 +224,7 @@ export function loadScalperConfig(): ScalperConfig {
     takeProfitROE: getEnvNumber('SCALPER_TAKE_PROFIT_ROE', 1.5),      // 1.5% TP - let winners run (was 0.8%)
     takeProfitROEHigh: getEnvNumber('SCALPER_TAKE_PROFIT_ROE_HIGH', 2.5), // 2.5% for high-confidence (was 1.2%)
     stopLossROE: getEnvNumber('SCALPER_STOP_LOSS_ROE', -0.4),       // -0.4% SL - very tight to prevent big losses (was -1.0%)
+    stopLossEarlyTriggerPercent: getEnvNumber('SCALPER_STOP_LOSS_EARLY_TRIGGER_PERCENT', 0.9), // Trigger at 90% of SL for ultra-fast exit
     minProfitUSD: getEnvNumber('SCALPER_MIN_PROFIT_USD', 0.20),     // $0.20 minimum (lower for quick scalps)
     trailingActivationROE: getEnvNumber('SCALPER_TRAILING_ACTIVATION_ROE', 0.5),  // Activate at 0.5% (was 1%) - quick protection
     trailingDistanceROE: getEnvNumber('SCALPER_TRAILING_DISTANCE_ROE', 0.2),    // 0.2% distance (was 0.5%) - tight trailing
