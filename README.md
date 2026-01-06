@@ -1,5 +1,7 @@
 # FlashScalper
 
+<!-- Verified by CI test -->
+
 > ⚠️ **DISCLAIMER**: This software is for educational and research purposes only. **NOT FOR PRODUCTION USE**. Trading involves substantial risk of loss. See [DISCLAIMER.md](DISCLAIMER.md) for full details.
 
 Crypto scalping trading agent.
