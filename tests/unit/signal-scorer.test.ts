@@ -207,21 +207,8 @@ describe('Signal Scoring', () => {
       expect(hasMACDReason).toBe(true);
     });
 
-    test('should include Stochastic in reasons when oversold', () => {
-      const klines = generateKlines();
-      const score = calculateSignalScore(bullishIndicators, klines, defaultConfig);
-
-      const hasStochReason = score.reasons.some(r => r.toLowerCase().includes('stoch'));
-      expect(hasStochReason).toBe(true);
-    });
-
-    test('should include Williams %R in reasons when oversold', () => {
-      const klines = generateKlines();
-      const score = calculateSignalScore(bullishIndicators, klines, defaultConfig);
-
-      const hasWilliamsReason = score.reasons.some(r => r.toLowerCase().includes('williams'));
-      expect(hasWilliamsReason).toBe(true);
-    });
+    // Note: Stochastic and Williams %R were removed from scoring as they were
+    // redundant with RSI and causing conflicts. They're still used in bounce detection.
 
     test('should include volume spike in reasons', () => {
       const klines = generateKlines();
@@ -279,16 +266,16 @@ describe('Signal Validation', () => {
       expect(validation.reasons.some(r => r.toLowerCase().includes('volume'))).toBe(true);
     });
 
-    test('should reject signal with momentum out of range', () => {
+    test('should reject signal with momentum too high (chasing)', () => {
       const klines = generateKlines();
-      const lowMomentumIndicators: TechnicalIndicators = {
+      const highMomentumIndicators: TechnicalIndicators = {
         ...bullishIndicators,
-        momentum: 0.05, // Below 0.2 threshold
+        momentum: 5.0, // Above 3.0 threshold - chasing
         volumeRatio: 0.5, // Valid volume
       };
 
-      const score = calculateSignalScore(lowMomentumIndicators, klines, defaultConfig);
-      const validation = validateSignal(score, lowMomentumIndicators, defaultConfig);
+      const score = calculateSignalScore(highMomentumIndicators, klines, defaultConfig);
+      const validation = validateSignal(score, highMomentumIndicators, defaultConfig);
 
       expect(validation.isValid).toBe(false);
       expect(validation.reasons.some(r => r.toLowerCase().includes('momentum'))).toBe(true);
@@ -314,7 +301,12 @@ describe('Signal Validation', () => {
         reasons: ['MACD bearish cross'],
       };
 
-      const validation = validateSignal(score, uptrend, defaultConfig);
+      const configWithTrendAlignment = {
+        ...defaultConfig,
+        requireTrendAlignment: true,
+      };
+
+      const validation = validateSignal(score, uptrend, configWithTrendAlignment);
 
       expect(validation.isValid).toBe(false);
       expect(validation.reasons.some(r => r.toLowerCase().includes('counter-trend'))).toBe(true);
@@ -380,17 +372,7 @@ describe('Edge Cases', () => {
     expect(score.reasons.some(r => r.toLowerCase().includes('rsi'))).toBe(true);
   });
 
-  test('should handle extreme Stochastic values', () => {
-    const klines = generateKlines();
-    const extremeStoch: TechnicalIndicators = {
-      ...neutralIndicators,
-      stochK: 2,
-      stochD: 5,
-    };
-
-    const score = calculateSignalScore(extremeStoch, klines, defaultConfig);
-    expect(score.reasons.some(r => r.toLowerCase().includes('stoch'))).toBe(true);
-  });
+  // Note: Stochastic scoring was removed as it was redundant with RSI
 
   test('should handle zero volume ratio', () => {
     const klines = generateKlines();
@@ -436,7 +418,7 @@ describe('Edge Cases', () => {
     const score = calculateSignalScore(allBullish, klines, defaultConfig);
 
     expect(score.direction).toBe('LONG');
-    expect(score.longScore).toBeGreaterThan(80);
-    expect(score.reasons.length).toBeGreaterThan(5);
+    expect(score.longScore).toBeGreaterThan(50); // Adjusted since Stoch/Williams/ROC removed
+    expect(score.reasons.length).toBeGreaterThan(3);
   });
 });

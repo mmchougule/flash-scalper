@@ -11,7 +11,7 @@ const usePretty = config.isDevelopment || process.env.LOG_PRETTY === 'true';
 
 // Create child loggers for different services
 const baseLogger = pino({
-  level: config.logLevel,
+  level: config.logLevel || 'info',
   base: {
     service: 'flashscalper',
     version: '1.0.0',

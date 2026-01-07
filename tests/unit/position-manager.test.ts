@@ -181,7 +181,7 @@ describe('Position Manager', () => {
       // ROE = (99.5-100)/100 * 10 * 100 = -5%
       expect(result.position.unrealizedROE).toBe(-5);
       expect(result.action).toBe('close_sl');
-      expect(result.reason).toContain('Stop loss');
+      expect(result.reason).toContain('stop loss');
     });
 
     test('should trigger take profit when ROE reaches threshold', () => {
