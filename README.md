@@ -1,3 +1,4 @@
+<!-- Last reviewed by Invariant E2E test on 2026-01-07T00:14:24.826Z -->
 # FlashScalper
 
 > ⚠️ **DISCLAIMER**: This software is for educational and research purposes only. **NOT FOR PRODUCTION USE**. Trading involves substantial risk of loss. See [DISCLAIMER.md](DISCLAIMER.md) for full details.
