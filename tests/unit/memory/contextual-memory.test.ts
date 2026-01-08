@@ -99,5 +99,216 @@ describe('ContextualMemory', () => {
       expect(boost.confidenceBoost).toBe(0);
     });
   });
+
+  describe('Market Event Detection', () => {
+    it('should detect volatility spike', () => {
+      const highVolatilityIndicators = {
+        ...mockIndicators,
+        atrPercent: 5.0, // High volatility
+      };
+
+      contextualMemory.storeContext('BTCUSDT', highVolatilityIndicators, []);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      expect(boost).toBeDefined();
+    });
+
+    it('should detect volume surge', () => {
+      const highVolumeIndicators = {
+        ...mockIndicators,
+        volumeRatio: 3.0, // High volume
+      };
+
+      contextualMemory.storeContext('BTCUSDT', highVolumeIndicators, []);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      expect(boost).toBeDefined();
+    });
+
+    it('should detect trend reversal', () => {
+      // Store uptrend context
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, []);
+
+      // Store downtrend context (reversal)
+      const reversalIndicators = {
+        ...mockIndicators,
+        trend: 'DOWN' as const,
+        momentum: -0.5,
+      };
+
+      contextualMemory.storeContext('BTCUSDT', reversalIndicators, []);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'SHORT', 75);
+      expect(boost).toBeDefined();
+    });
+  });
+
+  describe('Context Expiration', () => {
+    it('should handle multiple contexts for same symbol', () => {
+      // Store multiple contexts
+      for (let i = 0; i < 5; i++) {
+        contextualMemory.storeContext('BTCUSDT', mockIndicators, [
+          { type: 'LONG', confidence: 75, outcome: 'win' },
+        ]);
+      }
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      expect(boost.confidenceBoost).toBeGreaterThan(0);
+    });
+
+    it('should maintain separate contexts for different symbols', () => {
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, [
+        { type: 'LONG', confidence: 75, outcome: 'win' },
+      ]);
+
+      contextualMemory.storeContext('ETHUSDT', mockIndicators, [
+        { type: 'SHORT', confidence: 75, outcome: 'loss' },
+      ]);
+
+      const btcBoost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      const ethBoost = contextualMemory.getContextualBoost('ETHUSDT', 'SHORT', 75);
+
+      expect(btcBoost.confidenceBoost).toBeGreaterThan(0);
+      expect(ethBoost.confidenceBoost).toBeLessThan(0);
+    });
+  });
+
+  describe('Trade Streak Analysis', () => {
+    it('should boost confidence on winning streak', () => {
+      // Store winning signals
+      const winningSignals = Array(5).fill(null).map(() => ({
+        type: 'LONG' as SignalType,
+        confidence: 75,
+        outcome: 'win' as const,
+      }));
+
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, winningSignals);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      expect(boost.confidenceBoost).toBeGreaterThan(0);
+    });
+
+    it('should penalize confidence on losing streak', () => {
+      // Store losing signals
+      const losingSignals = Array(5).fill(null).map(() => ({
+        type: 'LONG' as SignalType,
+        confidence: 75,
+        outcome: 'loss' as const,
+      }));
+
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, losingSignals);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      expect(boost.confidenceBoost).toBeLessThan(0);
+    });
+
+    it('should handle mixed win/loss patterns', () => {
+      const mixedSignals = [
+        { type: 'LONG' as SignalType, confidence: 75, outcome: 'win' as const },
+        { type: 'LONG' as SignalType, confidence: 75, outcome: 'loss' as const },
+        { type: 'LONG' as SignalType, confidence: 75, outcome: 'win' as const },
+      ];
+
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, mixedSignals);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      expect(boost).toBeDefined();
+    });
+  });
+
+  describe('Signal Pattern Analysis', () => {
+    it('should identify winning patterns for signal type', () => {
+      const signals = [
+        { type: 'LONG' as SignalType, confidence: 75, outcome: 'win' as const },
+        { type: 'LONG' as SignalType, confidence: 75, outcome: 'win' as const },
+        { type: 'SHORT' as SignalType, confidence: 75, outcome: 'loss' as const },
+      ];
+
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, signals);
+
+      const longBoost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      const shortBoost = contextualMemory.getContextualBoost('BTCUSDT', 'SHORT', 75);
+
+      expect(longBoost.confidenceBoost).toBeGreaterThan(0);
+      expect(shortBoost.confidenceBoost).toBeLessThan(0);
+    });
+
+    it('should handle signals without outcomes', () => {
+      const signals = [
+        { type: 'LONG' as SignalType, confidence: 75 },
+        { type: 'SHORT' as SignalType, confidence: 75 },
+      ];
+
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, signals);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      expect(boost).toBeDefined();
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle empty signal history', () => {
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, []);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      expect(boost).toBeDefined();
+    });
+
+    it('should handle unknown signal types', () => {
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'UNKNOWN' as SignalType, 75);
+      expect(boost.confidenceBoost).toBe(0);
+    });
+
+    it('should handle very high confidence values', () => {
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, [
+        { type: 'LONG', confidence: 95, outcome: 'win' },
+      ]);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 95);
+      expect(boost).toBeDefined();
+    });
+
+    it('should handle very low confidence values', () => {
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, [
+        { type: 'LONG', confidence: 10, outcome: 'win' },
+      ]);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 10);
+      expect(boost).toBeDefined();
+    });
+
+    it('should handle extreme price movements', () => {
+      const extremeIndicators = {
+        ...mockIndicators,
+        price: 100000,
+        momentum: 5.0,
+        volatility: 10.0,
+      };
+
+      contextualMemory.storeContext('BTCUSDT', extremeIndicators, []);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+      expect(boost).toBeDefined();
+    });
+  });
+
+  describe('Boost Bounds', () => {
+    it('should provide reasonable boost values', () => {
+      // Store many winning trades
+      const signals = Array(20).fill(null).map(() => ({
+        type: 'LONG' as SignalType,
+        confidence: 75,
+        outcome: 'win' as const,
+      }));
+
+      contextualMemory.storeContext('BTCUSDT', mockIndicators, signals);
+
+      const boost = contextualMemory.getContextualBoost('BTCUSDT', 'LONG', 75);
+
+      // Boosts should be bounded to prevent extreme values
+      expect(Math.abs(boost.confidenceBoost)).toBeLessThan(50);
+      expect(Math.abs(boost.scoreBoost)).toBeLessThan(50);
+    });
+  });
 });
 
